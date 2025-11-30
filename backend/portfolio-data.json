@@ -1,0 +1,44 @@
+{
+  "aboutMe": {
+    "bio": "I'm a passionate full-stack developer with expertise in MERN stack.",
+    "tagline": "Building amazing web experiences",
+    "profilePicture": "https://example.com/profile.jpg"
+  },
+  "skills": [
+    {
+      "name": "JavaScript",
+      "level": 90,
+      "category": "technical"
+    },
+    {
+      "name": "React",
+      "level": 85,
+      "category": "technical"
+    },
+    {
+      "name": "Leadership",
+      "level": 80,
+      "category": "soft"
+    }
+  ],
+  "projects": [
+    {
+      "title": "Resume Builder App",
+      "description": "A full-stack MERN application for building professional resumes",
+      "image": "https://example.com/project1.jpg",
+      "technologies": ["React", "Node.js", "MongoDB", "Express"],
+      "githubLink": "https://github.com/testuser/resume-builder",
+      "liveLink": "https://resume-builder.com",
+      "order": 1
+    }
+  ],
+  "contact": {
+    "email": "testuser@example.com",
+    "phone": "+1234567890",
+    "linkedin": "https://linkedin.com/in/testuser",
+    "github": "https://github.com/testuser",
+    "twitter": "https://twitter.com/testuser",
+    "website": "https://testuser.com"
+  },
+  "isPublished": true
+}

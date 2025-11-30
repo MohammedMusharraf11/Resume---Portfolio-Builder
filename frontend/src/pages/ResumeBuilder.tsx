@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, ArrowRight, Save, Download, Eye, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
-import { resumeAPI } from "@/services/api";
+import { resumeAPI, uploadAPI } from "@/services/api";
 import { LivePreviewModal } from "@/components/resume/LivePreviewModal";
 import { getTemplate } from "@/components/resume/ResumeTemplates";
 import { downloadResumePDF } from "@/utils/pdfDownload";
@@ -53,6 +53,7 @@ interface ResumeData {
     linkedin: string;
     location: string;
     professionalSummary: string;
+    profilePicture: string;
   };
   education: Education[];
   experience: Experience[];
@@ -97,7 +98,8 @@ const ResumeBuilder = () => {
       phone: "",
       linkedin: "",
       location: "",
-      professionalSummary: ""
+      professionalSummary: "",
+      profilePicture: user?.profilePicture || ""
     },
     education: [{ degree: "", institution: "", year: "", gpa: "" }],
     experience: [{ 
@@ -486,19 +488,90 @@ const ResumeBuilder = () => {
 };
 
 // Form Components
-const PersonalInfoForm = ({ data, onChange }: any) => (
-  <div className="space-y-4">
-    <h2 className="text-2xl font-bold mb-4">Personal Information</h2>
-    <div className="grid sm:grid-cols-2 gap-4">
+const PersonalInfoForm = ({ data, onChange }: any) => {
+  const [uploadingProfile, setUploadingProfile] = useState(false);
+
+  const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setUploadingProfile(true);
+    try {
+      const response = await uploadAPI.uploadProfilePicture(file);
+      onChange('profilePicture', response.url);
+      toast.success('Profile picture uploaded!');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to upload image');
+    } finally {
+      setUploadingProfile(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold mb-4">Personal Information</h2>
+      
+      {/* Profile Picture */}
       <div className="space-y-2">
-        <Label htmlFor="fullName">Full Name *</Label>
-        <Input 
-          id="fullName" 
-          value={data.fullName} 
-          onChange={(e) => onChange('fullName', e.target.value)} 
-          placeholder="John Doe" 
-        />
+        <Label>Profile Picture (Optional)</Label>
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+            {data.profilePicture ? (
+              <img
+                src={data.profilePicture}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-2xl font-bold text-muted-foreground">
+                {data.fullName?.charAt(0) || '?'}
+              </span>
+            )}
+          </div>
+          <div className="flex-1">
+            <input
+              type="file"
+              id="resume-profile-picture"
+              accept="image/*"
+              onChange={handleProfilePictureUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById('resume-profile-picture')?.click()}
+              disabled={uploadingProfile}
+            >
+              {uploadingProfile ? 'Uploading...' : 'Upload Photo'}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-1">
+              Recommended: Square image, max 5MB
+            </p>
+          </div>
+        </div>
       </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="fullName">Full Name *</Label>
+          <Input 
+            id="fullName" 
+            value={data.fullName} 
+            onChange={(e) => onChange('fullName', e.target.value)} 
+            placeholder="John Doe" 
+          />
+        </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email *</Label>
         <Input 
@@ -550,7 +623,8 @@ const PersonalInfoForm = ({ data, onChange }: any) => (
       />
     </div>
   </div>
-);
+  );
+};
 
 const EducationForm = ({ education, onAdd, onRemove, onChange }: any) => (
   <div className="space-y-6">

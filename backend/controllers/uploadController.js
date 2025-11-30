@@ -68,6 +68,20 @@ exports.uploadProfilePicture = async (req, res, next) => {
       ],
     });
 
+    // Update user's profile picture in User model
+    const User = require('../models/User');
+    const Portfolio = require('../models/Portfolio');
+    
+    await User.findByIdAndUpdate(req.user.id, {
+      profilePicture: uploadResponse.secure_url,
+    });
+
+    // Also update portfolio if exists
+    await Portfolio.findOneAndUpdate(
+      { user: req.user.id },
+      { 'aboutMe.profilePicture': uploadResponse.secure_url }
+    );
+
     res.status(200).json({
       success: true,
       message: 'Profile picture uploaded successfully',

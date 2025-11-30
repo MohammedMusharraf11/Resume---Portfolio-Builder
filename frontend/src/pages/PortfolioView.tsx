@@ -104,8 +104,16 @@ const PortfolioView = () => {
           <div className="max-w-4xl mx-auto text-center animate-fade-in">
             {/* Profile Picture */}
             <div className="w-32 h-32 mx-auto mb-8 rounded-full gradient-primary p-1">
-              <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
-                <User className="w-16 h-16 text-muted-foreground" />
+              <div className="w-full h-full rounded-full bg-background flex items-center justify-center overflow-hidden">
+                {portfolio.aboutMe?.profilePicture ? (
+                  <img
+                    src={portfolio.aboutMe.profilePicture}
+                    alt={portfolio.user?.fullName || 'Profile'}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-16 h-16 text-muted-foreground" />
+                )}
               </div>
             </div>
 

@@ -8,6 +8,16 @@ exports.createOrUpdatePortfolio = async (req, res, next) => {
   try {
     req.body.user = req.user.id;
 
+    // Get user's profile picture from User model
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id);
+    
+    // If no profile picture in request but user has one, use user's profile picture
+    if (!req.body.aboutMe?.profilePicture && user.profilePicture) {
+      if (!req.body.aboutMe) req.body.aboutMe = {};
+      req.body.aboutMe.profilePicture = user.profilePicture;
+    }
+
     let portfolio = await Portfolio.findOne({ user: req.user.id });
 
     if (portfolio) {
